@@ -1,0 +1,31 @@
+#funcs
+function _pushd() { pushd "$@" > /dev/null; }
+function _popd()  { popd > /dev/null;     }
+
+# sdk variables
+CUR_PATH=$(dirname $(realpath $0))
+SDK_PATH="$CUR_PATH/openwrt"
+
+
+# docker variables
+USER_ID="$(id -u)"
+GRP_ID="$(id -g)"
+D_TAG="sdk-builder_$USER_ID"
+D_IMG="u24"
+W_DIR="/openwrt"
+
+D_MOUNT="-v $SDK_PATH:$W_DIR"
+D_WORKD="-w $W_DIR"
+D_USER="-u $USER_ID:$GRP_ID"
+
+# reconfigure previously defined variables if possible
+RE_CFG="$( dirname -- "$( readlink -f -- "$0"; )"; )"/"$( dirname -- "$BASH_SOURCE"; )"/re.cfg.sh
+[[ -f "$RE_CFG" ]] && . "$RE_CFG" || :
+
+# define docker run|exec flags after reconfigure
+D_FLAGS="\
+  -it --rm \
+  $D_MOUNT \
+  $D_WORKD \
+  $D_USER
+"
